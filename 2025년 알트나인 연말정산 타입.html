@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 ALT9 연말정산 통합 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT/fonts/variable/woff2/SUIT-Variable.css" rel="stylesheet">
+    <style>
+        :root { --primary: #000000; --accent: #ff4d00; --bg: #ffffff; --card: #f8f8f8; }
+        body { font-family: 'SUIT Variable', sans-serif; background-color: #eeeeee; color: var(--primary); display: flex; justify-content: center; min-height: 100vh; margin: 0; }
+        #app { background: var(--bg); width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .header { padding: 30px 20px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; background: white; z-index: 10; }
+        .header h1 { font-size: 12px; letter-spacing: 4px; text-transform: uppercase; margin: 0; color: #888; }
+        .content { flex: 1; padding: 40px 25px; text-align: center; display: block; }
+        .character-box { font-size: 50px; margin-bottom: 20px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        h2 { font-size: 1.5rem; font-weight: 800; line-height: 1.4; margin-bottom: 30px; word-break: keep-all; }
+        .btn { display: block; width: 100%; padding: 18px; margin-bottom: 12px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: 0.2s; text-decoration: none; text-align: center; }
+        .btn:hover { background: var(--primary); color: white; }
+        .btn-black { background: var(--primary); color: white; }
+        .btn-gray { background: #f1f1f1; border-color: #f1f1f1; color: #666; margin-top: 5px; }
+        .btn-prev { background: none; border: none; color: #999; text-decoration: underline; font-size: 0.85rem; margin-top: 15px; width: auto; display: inline-block; cursor: pointer; outline: none; }
+        .result-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; }
+        .doc-card { background: var(--card); border-left: 5px solid var(--primary); padding: 20px; text-align: left; margin: 20px 0; }
+        .doc-item { margin-bottom: 15px; }
+        .doc-item span { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+        .doc-item p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
+        .doc-link { color: var(--primary); text-decoration: underline; font-size: 0.8rem; font-weight: 700; display: inline-block; margin-top: 5px; cursor: pointer; }
+        .warning { background: #fff0f0; border: 1px solid #ffcccc; color: #d00; padding: 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-align: left; }
+        .hidden { display: none !important; }
+        .divider { height: 1px; background: #eee; margin: 40px 0; }
+        .step-tag { display: inline-block; padding: 4px 12px; background: #000; color: #fff; font-size: 10px; border-radius: 20px; margin-bottom: 10px; }
+        .checklist-container { text-align: left; background: #fdfdfd; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-top: 20px; }
+        .check-item { display: flex; align-items: flex-start; margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px dashed #eee; }
+        .check-item:last-child { border-bottom: none; }
+        .check-item input { margin-top: 3px; margin-right: 12px; width: 20px; height: 20px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+        .check-text { flex: 1; }
+        .check-text label { cursor: pointer; display: block; }
+        .check-text strong { display: block; font-size: 0.95rem; margin-bottom: 4px; }
+        .check-text span { display: block; font-size: 0.8rem; color: #666; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="header"><h1>ALT9 TAX 2025</h1></div>
+    
+    <div id="step1-main" class="content">
+        <div class="step-tag">STEP 01</div>
+        <div class="character-box">🕶️</div>
+        <h2>2025년 귀속 연말정산<br>나의 타입 확인하기</h2>
+        <button class="btn btn-black" onclick="handleStart()">테스트 시작하기</button>
+    </div>
+
+    <div id="question-box" class="content hidden">
+        <div id="q-emoji" class="character-box">❓</div>
+        <h2 id="q-text">질문</h2>
+        <div id="q-options"></div>
+        <button class="btn-prev" id="btn-back" onclick="goBack()">이전 단계로</button>
+    </div>
+
+    <div id="step1-result" class="content hidden">
+        <div class="step-tag">RESULT: TYPE</div>
+        <div id="r1-emoji" class="character-box">✨</div>
+        <div id="r1-title" class="result-title">타입명</div>
+        <p id="r1-desc">설명</p>
+        <div class="warning">⚠️ 모든 서류는 "주민등록번호 뒷자리 공개" 필수!</div>
+        <div class="doc-card" id="r1-docs"></div>
+        <div class="divider"></div>
+        <div class="step-tag" style="background:var(--accent)">STEP 02</div>
+        <h2>혹시 주택자금공제(주택담보대출/전세/월세)에 해당하시나요?</h2>
+        <button class="btn btn-black" onclick="handleStep2Start()">🏠 주택자금 관련 서류 확인하기</button>
+        <button class="btn btn-gray" onclick="handleEnd()">해당 없음 (최종 체크리스트 확인)</button>
+    </div>
+
+    <div id="step2-result" class="content hidden">
+        <div class="step-tag">RESULT: TOTAL</div>
+        <div class="character-box">✅</div>
+        <h2 class="result-title">최종 체크리스트</h2>
+        <p>알티클님을 위한 맞춤형 서류 목록입니다.</p>
+        <div id="housing-fail-msg" class="warning hidden" style="margin-bottom: 20px; background: #fff8e1; border-color: #ffe082; color: #856404;">
+            선택하신 정보에 따르면 주택자금 공제 요건에 부합하지 않아 기본 서류만 안내해 드립니다.
+        </div>
+        <div class="checklist-container" id="final-checklist"></div>
+        <div class="divider"></div>
+        <h2 style="font-size:1.2rem">환급 비나이다🙏</h2>
+        <button class="btn btn-black" onclick="location.reload()">처음부터 다시하기</button>
+    </div>
+</div>
+
+<script>
+    // 모든 서류 상세 데이터 정의
+    const docInfo = {
+        WON: { name: "2025년 근로소득 원천징수영수증", desc: "이전 직장 인사/경영지원팀에 직접 문의하여 발급(이전직장 2곳 이상일 경우, 각각 요청해서 받으셔야합니다(총 2개)", link: "" },
+        DUNG: { name: "주민등록등본", desc: "정부24 발급", link: "https://www.gov.kr/mw/EgovPageLink.do?link=yearend/yearend_main_issue_6type" },
+        MARRY: { name: "혼인관계증명서 (해당자)", desc: "2025년 결혼 및 혼인신고(필수)로 배우자 추가 시", link: "https://efamily.scourt.go.kr/index.jsp" },
+        HOME_MORT: { name: "건물등기부등본", desc: "대법원 인터넷등기소 발급", link: "http://www.iros.go.kr/" },
+        HOME_PRICE: { name: "개별/공동주택공시가격확인서", desc: "부동산공시가격 알리미 확인", link: "https://www.realtyprice.kr/" },
+        RENT_CONTRACT: { name: "임대차계약서 사본", desc: "확정일자가 찍힌 계약서 사본 준비", link: "" },
+        RENT_CASH: { name: "월세액 입금 계좌이체영수증", desc: "또는 무통장입금증 준비 (단, 국세청간소화자료에 나오면 생략 가능)", link: "" },
+        GANSO: { name: "국세청 간소화 자료", desc: "PDF 다운로드 후 제출", link: "https://www.hometax.go.kr/" }
+    };
+
+    let selectedDocs = new Set();
+    let isHousingFail = false;
+    let historyStack = [];
+    let currentMode = "";
+
+    const step1Data = {
+        q1: { text: "2025년 이전부터<br>알트나인에 재직 중이신가요?", emoji: "🏢", options: [{text: "네, 계속 근무 중", next: "q2a"}, {text: "아니요, 2025년 입사", next: "q2b"}] },
+        q2a: { text: "2025년 한 해 동안<br>가족 관계에 변동이 있었나요?", emoji: "👨‍👩‍👧", options: [{text: "변동 없음", type: "A"}, {text: "가족이 늘었어요!", type: "B"}] },
+        q2b: { text: "알트나인 입사 전(2025년 중),<br>이전 직장에서 근무하셨나요?", emoji: "💼", options: [{text: "네, 전 직장 있음", type: "C"}, {text: "아니요, 첫 직장", type: "D"}] }
+    };
+
+    const step1Results = {
+        A: { title: "알트나인 시조새", desc: "변함없는 알티클! 작년과 똑같이!", emoji: "🐦", docs: ["GANSO"] },
+        B: { title: "가족이 늘었어요!", desc: "행복이 2배! 가족과 함께하는!", emoji: "💖", docs: ["DUNG", "MARRY"] },
+        C: { title: "뉴페이스", desc: "알트나인 적응완료! 기록 합산 필수!", emoji: "☄️", docs: ["WON", "DUNG", "MARRY"] },
+        D: { title: "삐약", desc: "모든 것이 새로운 신입입니다!", emoji: "🐣", docs: ["DUNG"] }
+    };
+
+    const step2Data = {
+        q1: { text: "주택 공제 관련,<br>나는 세대주 or 세대원인가요?", emoji: "🔑", options: [{text: "나는 세대주이다", next: "q2_house"}, {text: "나는 세대원이다", type: "FAIL"}] },
+        q2_house: { text: "2025년 12월 31일 기준<br>주택 소유 현황은?", emoji: "🏠", options: [{text: "무주택자이다", next: "q3_loan"}, {text: "1주택 소유자이다", next: "q3_mortgage"}] },
+        q3_loan: { text: "현재 거주 형태는?", emoji: "🏢", options: [{text: "전세대출이 있다", next: "q4_jeonse_size"}, {text: "월세를 납부 중이다", next: "q4_wolse_salary"}] },
+        q3_mortgage: { text: "주택 관련 대출이 있나요?", emoji: "🏦", options: [{text: "주택담보대출이 있다", next: "q4_mort_year"}, {text: "대출 없다", type: "FAIL"}] },
+        q4_jeonse_size: { text: "국민주택규모(전용면적 85㎡이하)의<br>주택(오피스텔 포함)인가요?", emoji: "📏", options: [{text: "네, 해당합니다", type: "JEONSE"}, {text: "아니요, 더 큽니다", type: "FAIL"}] },
+        q4_wolse_salary: { text: "2025년 총 급여액이<br>8천만 원 이하인가요?", emoji: "💰", options: [{text: "네, 이하입니다", next: "q5_wolse_size"}, {text: "아니요, 초과입니다", type: "FAIL"}] },
+        q5_wolse_size: { text: "국민주택규모(전용면적 85㎡이하)의<br>주택(오피스텔 포함)인가요?", emoji: "🏠", options: [{text: "네, 해당합니다", type: "WOLSE"}, {text: "아니요, 더 큽니다", type: "FAIL"}] },
+        q4_mort_year: { text: "언제 집을 구매(등기)하셨나요?", emoji: "📅", options: [{text: "2014년 ~ 2018년", next: "q5_mort_1418"}, {text: "2019년 ~ 2023년", next: "q5_mort_1923"}, {text: "2024년 이후", next: "q5_mort_24"}] },
+        q5_mort_1418: { text: "구매 당시 기준시가가<br>4억 원 이하인가요?", emoji: "💸", options: [{text: "네, 이하입니다", type: "OWN"}, {text: "아니요, 초과입니다", type: "FAIL"}] },
+        q5_mort_1923: { text: "구매 당시 기준시가가<br>5억 원 이하인가요?", emoji: "💸", options: [{text: "네, 이하입니다", type: "OWN"}, {text: "아니요, 초과입니다", type: "FAIL"}] },
+        q5_mort_24: { text: "구매 당시 기준시가가<br>6억 원 이하인가요?", emoji: "💸", options: [{text: "네, 이하입니다", type: "OWN"}, {text: "아니요, 초과입니다", type: "FAIL"}] }
+    };
+
+    function showView(viewId) {
+        document.querySelectorAll('.content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    function handleStart() {
+        currentMode = "step1";
+        historyStack = ['main'];
+        selectedDocs.clear();
+        isHousingFail = false;
+        showView('question-box');
+        renderQuestion(step1Data, 'q1');
+    }
+
+    function handleStep2Start() {
+        currentMode = "step2";
+        historyStack = ['step1-result'];
+        showView('question-box');
+        renderQuestion(step2Data, 'q1');
+    }
+
+    function renderQuestion(dataSource, qKey) {
+        const q = dataSource[qKey];
+        document.getElementById('q-emoji').innerText = q.emoji;
+        document.getElementById('q-text').innerHTML = q.text;
+        const box = document.getElementById('q-options');
+        box.innerHTML = '';
+        q.options.forEach(opt => {
+            const b = document.createElement('button');
+            b.className = 'btn';
+            b.innerHTML = opt.text;
+            b.onclick = () => {
+                historyStack.push(qKey);
+                if(opt.next) renderQuestion(dataSource, opt.next);
+                else finishStep(opt.type);
+            };
+            box.appendChild(b);
+        });
+    }
+
+    function goBack() {
+        const last = historyStack.pop();
+        if(!last) return;
+        if(last === 'main') showView('step1-main');
+        else if(last === 'step1-result') showView('step1-result');
+        else renderQuestion(currentMode === "step1" ? step1Data : step2Data, last);
+    }
+
+    function finishStep(type) {
+        if(currentMode === "step1") {
+            showView('step1-result');
+            const res = step1Results[type];
+            res.docs.forEach(d => selectedDocs.add(d));
+            document.getElementById('r1-emoji').innerText = res.emoji;
+            document.getElementById('r1-title').innerText = res.title;
+            document.getElementById('r1-desc').innerText = res.desc;
+            let html = "";
+            res.docs.forEach(k => {
+                const info = docInfo[k];
+                html += `<div class="doc-item">
+                            <span>• ${info.name}</span>
+                            <p>${info.desc}</p>
+                            ${info.link ? `<a href="${info.link}" target="_blank" class="doc-link">발급 바로가기 ></a>` : ""}
+                         </div>`;
+            });
+            document.getElementById('r1-docs').innerHTML = html;
+        } else {
+            const resData = { JEONSE: ["RENT_CONTRACT"], WOLSE: ["RENT_CONTRACT", "RENT_CASH"], OWN: ["HOME_MORT", "HOME_PRICE"], FAIL: [], NONE: [] };
+            if(type === "FAIL") isHousingFail = true;
+            if(resData[type]) resData[type].forEach(d => selectedDocs.add(d));
+            renderFinal();
+        }
+    }
+
+    function renderFinal() {
+        showView('step2-result');
+        const container = document.getElementById('final-checklist');
+        const failMsg = document.getElementById('housing-fail-msg');
+        isHousingFail ? failMsg.classList.remove('hidden') : failMsg.classList.add('hidden');
+        let html = "";
+        selectedDocs.forEach(key => {
+            const info = docInfo[key];
+            html += `<div class="check-item">
+                        <input type="checkbox" id="ck-${key}">
+                        <div class="check-text">
+                            <label for="ck-${key}"><strong>${info.name}</strong><span>${info.desc}</span></label>
+                            ${info.link ? `<a href="${info.link}" target="_blank" class="doc-link">발급 바로가기 ></a>` : ""}
+                        </div>
+                     </div>`;
+        });
+        container.innerHTML = html || "<p>준비할 증빙 서류가 없습니다.</p>";
+    }
+
+    function handleEnd() { renderFinal(); }
+</script>
+</body>
+</html>
